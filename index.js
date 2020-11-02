@@ -37,18 +37,38 @@ function getItemsFromServer() {
     // console.log(dict);
 }
 
+function containr(text, words) {
+    // console.log(words.length)
+    let i = 0;
+    words.forEach(element => {
+        // console.log(element)
+        if (text.toLowerCase().indexOf(element.toLowerCase()) !== -1) {
+            i += 1;
+        }
+    });
+    if (i === words.length){
+        return true
+    }
+}
+
 function getItems(item) {
     const start = Date.now();
     console.log(start)
     const info = fs.statSync('./data/items.json');
-    console.log(start - info.birthtimeMs);
-    if (start - info.birthtimeMs > 10000000) {
+    console.log(start - info.atimeMs);
+    if (start - info.atimeMs > 10000000) {
         getItemsFromServer();
         console.log("Rechargement des items");
     }
     fs.readFile('./data/items.json', (err, data) => {
         if (err) throw err;
-        console.log(JSON.parse(data));
+        var dict = JSON.parse(data)
+        for (const i in dict) {
+            // console.log(i);
+            if (containr(i, item) === true) {
+                console.log("trouvé " + i + " " + dict[i])
+            }
+        }
     });
 }
 
