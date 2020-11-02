@@ -1,0 +1,7 @@
+/config
+main.js
+/node_modules
+startup.cmd
+.idea
+package.json
+package-lock.json
