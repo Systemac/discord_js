@@ -5,6 +5,7 @@ const Google = require('./commands/google')
 const fs = require('fs');
 const path = require('path')
 const getJSON = require('get-json')
+const https = require('https')
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -52,6 +53,7 @@ function containr(text, words) {
 }
 
 function getItems(item) {
+    let dico = {}
     const start = Date.now();
     console.log(start)
     const info = fs.statSync('./data/items.json');
@@ -66,7 +68,13 @@ function getItems(item) {
         for (const i in dict) {
             // console.log(i);
             if (containr(i, item) === true) {
-                console.log("trouvé " + i + " " + dict[i])
+                https.get(url='https://finder.deepspacecrew.com/Search/'+dict[i], function (error, response, body) {
+                    if (error) {
+                        console.log(error)
+                    }
+                    console.log(body)
+                })
+                // console.log("trouvé " + i + " " + dict[i])
             }
         }
     });
