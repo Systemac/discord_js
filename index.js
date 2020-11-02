@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const tok = require('./config/auth.json');
 const bot = new Discord.Client();
-const Google = require('./commands/Google')
+const Google = require('./commands/google')
 const fs = require('fs');
 const path = require('path')
 const getJSON = require('get-json')
@@ -22,18 +22,36 @@ function change_avatar() {
 }
 
 
-function getItems() {
+function getItemsFromServer() {
     var dict = {};
     getJSON('https://finder.deepspacecrew.com/GetSearch', function (error, response) {
         if (error) {
             console.log(error)
         }
         response.forEach(element => dict[element['name']] = element['id']);
+        // console.log(dict);
+        let data = JSON.stringify(dict);
+        fs.writeFileSync('./data/items.json', data)
         // response.forEach(element => console.log('id : ' + element['id'] + ', name :'+ element['name'] ));
     });
     // console.log(dict);
-
 }
+
+function getItems(item) {
+    const start = Date.now();
+    console.log(start)
+    const info = fs.statSync('./data/items.json');
+    console.log(start - info.birthtimeMs);
+    if (start - info.birthtimeMs > 10000000) {
+        getItemsFromServer();
+        console.log("Rechargement des items");
+    }
+    fs.readFile('./data/items.json', (err, data) => {
+        if (err) throw err;
+        console.log(JSON.parse(data));
+    });
+}
+
 
 
 async function find(text) {
@@ -43,7 +61,8 @@ async function find(text) {
 
 bot.on('ready', () => {
     console.log(`Logged in as ${bot.user.tag}!`);
-    change_avatar()
+    change_avatar();
+    getItemsFromServer();
 });
 
 bot.on('message', function (message) {
@@ -53,7 +72,7 @@ bot.on('message', function (message) {
     if (message.content.startsWith('!find')) {
         let args = message.content.split(' ');
         args.shift();
-        getItems();
+        getItems(args);
         // return message.channel.send(getItems(args));
     }
     if (message.content === "!ping") {
