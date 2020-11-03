@@ -5,7 +5,8 @@ const Google = require('./commands/google')
 const fs = require('fs');
 const path = require('path')
 const getJSON = require('get-json')
-const https = require('https')
+const axios = require('axios')
+const BASEURL = 'https://finder.deepspacecrew.com'
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -24,7 +25,7 @@ function change_avatar() {
 
 
 function getItemsFromServer() {
-    var dict = {};
+    let dict = {};
     getJSON('https://finder.deepspacecrew.com/GetSearch', function (error, response) {
         if (error) {
             console.log(error)
@@ -32,7 +33,17 @@ function getItemsFromServer() {
         response.forEach(element => dict[element['name']] = element['id']);
         // console.log(dict);
         let data = JSON.stringify(dict);
-        fs.writeFileSync('./data/items.json', data)
+        let dataExist = fs.existsSync('./data/items.json')
+        if (dataExist) {
+            fs.writeFileSync('./data/items.json', data)
+        } else {
+            fs.mkdir('./data/', (err) => {
+                if (err) {
+                    return console.log(err)
+                }
+                fs.writeFileSync('./data/items.json', data)
+            });
+        }
         // response.forEach(element => console.log('id : ' + element['id'] + ', name :'+ element['name'] ));
     });
     // console.log(dict);
@@ -52,7 +63,7 @@ function containr(text, words) {
     }
 }
 
-function getItems(item) {
+async function getItems(item) {
     let dico = {}
     const start = Date.now();
     console.log(start)
@@ -62,28 +73,27 @@ function getItems(item) {
         getItemsFromServer();
         console.log("Rechargement des items");
     }
-    fs.readFile('./data/items.json', (err, data) => {
-        if (err) throw err;
-        var dict = JSON.parse(data)
-        for (const i in dict) {
-            // console.log(i);
-            if (containr(i, item) === true) {
-                https.get(url='https://finder.deepspacecrew.com/Search/'+dict[i], function (error, response, body) {
-                    if (error) {
-                        console.log(error)
-                    }
-                    console.log(body)
-                })
-                // console.log("trouvé " + i + " " + dict[i])
+    let data = fs.readFileSync('./data/items.json');
+    data = JSON.parse(data)
+    let i = ''
+    for (i in data) {
+        if (containr(i, item) === true) {
+            let url = await _getUrl(data[i])
+            // console.log(url)
+            result = url['request']['_header'].split("\n")[0].replace('\r', '').replace('GET ', '').replace(' HTTP/1.1', '');
+            if (result.length < 30) {
+                result = '/Shipshops1/' + data[i]
             }
+            console.log(result);
+            dico[BASEURL + result] = i
         }
-    });
+    }
+    console.log(dico);
+    return dico;
 }
 
-
-
-async function find(text) {
-    console.log(text)
+function _getUrl(iditem) {
+    return axios.get('https://finder.deepspacecrew.com/Search/' + iditem);
 }
 
 
@@ -93,15 +103,26 @@ bot.on('ready', () => {
     getItemsFromServer();
 });
 
-bot.on('message', function (message) {
+bot.on('message', async function (message) {
     if (Google.match(message)) {
         return Google.action(message)
     }
     if (message.content.startsWith('!find')) {
         let args = message.content.split(' ');
         args.shift();
-        getItems(args);
-        // return message.channel.send(getItems(args));
+        console.log(args.length)
+        if (args.length === 0) {
+            return message.channel.send("Merci d'envoyer un paramètre à la demande !");
+        } else {
+            let dico = await getItems(args);
+            const embed = new Discord.MessageEmbed()
+                .setTitle("Résultat de la recherche sur " + args.join(' ') + " :")
+            for (i in dico) {
+                embed.addField(dico[i], i)
+            }
+            return message.channel.send(embed);
+        }
+
     }
     if (message.content === "!ping") {
         message.channel.send('pong');
