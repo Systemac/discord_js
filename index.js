@@ -50,10 +50,8 @@ function getItemsFromServer() {
 }
 
 function containr(text, words) {
-    // console.log(words.length)
     let i = 0;
     words.forEach(element => {
-        // console.log(element)
         if (text.toLowerCase().indexOf(element.toLowerCase()) !== -1) {
             i += 1;
         }
@@ -66,10 +64,10 @@ function containr(text, words) {
 async function getItems(item) {
     let dico = {}
     const start = Date.now();
-    console.log(start)
+    // console.log(start)
     const info = fs.statSync('./data/items.json');
-    console.log(start - info.atimeMs);
-    if (start - info.atimeMs > 10000000) {
+    // console.log(start - info.atimeMs);
+    if (start - info.atimeMs > 2000) {
         getItemsFromServer();
         console.log("Rechargement des items");
     }
@@ -84,11 +82,11 @@ async function getItems(item) {
             if (result.length < 30) {
                 result = '/Shipshops1/' + data[i]
             }
-            console.log(result);
+            // console.log(result);
             dico[BASEURL + result] = i
         }
     }
-    console.log(dico);
+    // console.log(dico);
     return dico;
 }
 
@@ -99,7 +97,7 @@ function _getUrl(iditem) {
 
 bot.on('ready', () => {
     console.log(`Logged in as ${bot.user.tag}!`);
-    change_avatar();
+    // change_avatar();
     getItemsFromServer();
 });
 
