@@ -7,6 +7,8 @@ const path = require('path')
 const getJSON = require('get-json')
 const axios = require('axios')
 const BASEURL = 'https://finder.deepspacecrew.com'
+let guild_id = 540489005951746048
+
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -104,6 +106,16 @@ bot.on('ready', () => {
 bot.on('message', async function (message) {
     if (Google.match(message)) {
         return Google.action(message)
+    }
+    if (message.content.startsWith("!move")) {
+        // let guild_id = message.guild
+        // console.log(guild_id.id);
+        // let memberWithRole = bot.guilds.get(guild_id.id).roles.find("name", "bot").members.map(m=>m.user.username);
+        // for (let i in message.guild.roles.cache) {
+        //     console.log(i)
+        // }
+        // console.log(message.guild.roles.cache.find(element => element.name === "@everyone"));
+        console.log(message.guild.members);
     }
     if (message.content.startsWith('!find')) {
         let args = message.content.split(' ');
