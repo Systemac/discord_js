@@ -25,6 +25,7 @@ function change_avatar() {
     });
 }
 
+// https://www.youtube.com/watch?v=pBd90XZ6UYg
 
 function getItemsFromServer() {
     let dict = {};
