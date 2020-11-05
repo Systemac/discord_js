@@ -12,6 +12,12 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
+
 function change_avatar() {
     const testFolder = './avatar/';
     fs.readdir(testFolder, (err, files) => {
@@ -26,6 +32,7 @@ function change_avatar() {
 // https://www.youtube.com/watch?v=pBd90XZ6UYg
 
 function getItemsFromServer() {
+    // TODO : Mettre en place une promesse en fin de boucle pour enlever la tempo de merde.
     let dict = {};
     getJSON(BASEURL + '/GetSearch', function (error, response) {
         if (error) {
@@ -65,12 +72,16 @@ function containr(text, words) {
 async function getItems(item) {
     let dico = {}
     const start = Date.now();
-    // console.log(start)
-    const info = fs.statSync('./data/items.json');
-    // console.log(start - info.atimeMs);
-    if (start - info.atimeMs > 2000) {
-        getItemsFromServer();
-        console.log("Rechargement des items");
+    let dataExist = fs.existsSync('./data/items.json');
+    if (dataExist) {
+        let info = fs.statSync('./data/items.json');
+        if (start - info.atimeMs > 2000) {
+            await getItemsFromServer();
+            console.log("Rechargement des items");
+        }
+    } else {
+        await getItemsFromServer();
+        await sleep(5000);
     }
     let data = fs.readFileSync('./data/items.json');
     data = JSON.parse(data)
@@ -79,7 +90,7 @@ async function getItems(item) {
         if (containr(i, item) === true) {
             let url = await _getUrl(data[i])
             // console.log(url)
-            result = url['request']['_header'].split("\n")[0].replace('\r', '').replace('GET ', '').replace(' HTTP/1.1', '');
+            let result = url['request']['_header'].split("\n")[0].replace('\r', '').replace('GET ', '').replace(' HTTP/1.1', '');
             if (result.length < 30) {
                 result = '/Shipshops1/' + data[i]
             }
