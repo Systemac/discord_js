@@ -113,22 +113,10 @@ bot.on('message', async function (message) {
         let membres = await message.guild.members.fetch();
         let direct = JSON.stringify(membres)
         let retour = JSON.parse(direct)
-        // console.log(retour)
-        // console.log(retour.length)
         for (let i = 0; i < retour.length; i++) {
             console.log(message.guild.members.fetch(retour[i].userID))
         }
-        //     let m = bot.guilds.map(function (obj) {
-        //         return obj.members;
-        //     });
-        //     for (var i = 0; i < m.length; i++) {
-        //         console.log("\n\nNew Guild: ");
-        //         console.log(m[i].map(function (obj) {
-        //             return obj.guild.name + " , " + obj.user.username + "  :  " + obj._roles;
-        //         }).join('\n'));
-        //     }
     }
-
 
     if (message.content.startsWith('!find')) {
         let args = message.content.split(' ');
