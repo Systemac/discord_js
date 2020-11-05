@@ -29,7 +29,7 @@ function change_avatar() {
 
 function getItemsFromServer() {
     let dict = {};
-    getJSON('https://finder.deepspacecrew.com/GetSearch', function (error, response) {
+    getJSON(BASEURL + '/GetSearch', function (error, response) {
         if (error) {
             console.log(error)
         }
@@ -94,7 +94,7 @@ async function getItems(item) {
 }
 
 function _getUrl(iditem) {
-    return axios.get('https://finder.deepspacecrew.com/Search/' + iditem);
+    return axios.get(BASEURL + '/Search/' + iditem);
 }
 
 
@@ -143,7 +143,7 @@ bot.on('message', async function (message) {
 
 bot.on('guildMemberAdd', function (member) {
     member.createDM().then(function (channel) {
-        return channel.send('Bienvenu sur mon serveur ' + member.displayName)
+        return channel.send('Bienvenue sur mon serveur ' + member.displayName)
     }).catch(console.error)
 })
 
