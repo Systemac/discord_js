@@ -7,8 +7,6 @@ const path = require('path')
 const getJSON = require('get-json')
 const axios = require('axios')
 const BASEURL = 'https://finder.deepspacecrew.com'
-let guild_id = 540489005951746048
-let roleID = 765320441757171753
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
