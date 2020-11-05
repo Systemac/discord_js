@@ -8,7 +8,7 @@ const getJSON = require('get-json')
 const axios = require('axios')
 const BASEURL = 'https://finder.deepspacecrew.com'
 let guild_id = 540489005951746048
-
+let roleID = 765320441757171753
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -114,8 +114,16 @@ bot.on('message', async function (message) {
         let direct = JSON.stringify(membres)
         let retour = JSON.parse(direct)
         for (let i = 0; i < retour.length; i++) {
-            console.log(message.guild.members.fetch(retour[i].userID))
+            let membre = retour[i]
+            console.log(membre)
         }
+    }
+
+    if (message.content.startsWith("!test")) {
+        let member = await message.guild.members.fetch();
+        let members = JSON.stringify(member)
+        member = JSON.parse(members)
+        console.log(member)
     }
 
     if (message.content.startsWith('!find')) {
