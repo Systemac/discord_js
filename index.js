@@ -101,7 +101,7 @@ function _getUrl(iditem) {
 bot.on('ready', () => {
     console.log(`Logged in as ${bot.user.tag}!`);
     // change_avatar();
-    getItemsFromServer();
+    // getItemsFromServer();
 });
 
 bot.on('message', async function (message) {
@@ -109,15 +109,27 @@ bot.on('message', async function (message) {
         return Google.action(message)
     }
     if (message.content.startsWith("!move")) {
-        // let guild_id = message.guild
-        // console.log(guild_id.id);
-        // let memberWithRole = bot.guilds.get(guild_id.id).roles.find("name", "bot").members.map(m=>m.user.username);
-        // for (let i in message.guild.roles.cache) {
-        //     console.log(i)
-        // }
-        // console.log(message.guild.roles.cache.find(element => element.name === "@everyone"));
-        console.log(message.guild.members);
+        console.log("lancement de la recherche des membres");
+        let membres = await message.guild.members.fetch();
+        let direct = JSON.stringify(membres)
+        let retour = JSON.parse(direct)
+        // console.log(retour)
+        // console.log(retour.length)
+        for (let i = 0; i < retour.length; i++) {
+            console.log(message.guild.members.fetch(retour[i].userID))
+        }
+        //     let m = bot.guilds.map(function (obj) {
+        //         return obj.members;
+        //     });
+        //     for (var i = 0; i < m.length; i++) {
+        //         console.log("\n\nNew Guild: ");
+        //         console.log(m[i].map(function (obj) {
+        //             return obj.guild.name + " , " + obj.user.username + "  :  " + obj._roles;
+        //         }).join('\n'));
+        //     }
     }
+
+
     if (message.content.startsWith('!find')) {
         let args = message.content.split(' ');
         args.shift();
