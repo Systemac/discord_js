@@ -137,6 +137,7 @@ bot.on('message', async function (message) {
 
     if (message.content.startsWith('!find')) {
         let args = message.content.split(' ');
+        let author = message.author
         args.shift();
         console.log(args.length)
         if (args.length === 0) {
@@ -144,17 +145,16 @@ bot.on('message', async function (message) {
         } else {
             let dico = await getItems(args);
             const embed = new Discord.MessageEmbed()
-                .setTitle("Résultat de la recherche sur " + args.join(' ') + " :")
+                .setTitle(`Résultat de la recherche sur ` + args.join(' ') + " :")
             for (i in dico) {
                 embed.addField(dico[i], i)
             }
+            message.channel.send(`${author} :`)
             return message.channel.send(embed);
         }
-
     }
     if (message.content === "!ping") {
         message.channel.send('pong');
-        // change_avatar()
     }
 })
 
