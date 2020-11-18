@@ -13,14 +13,14 @@ const {GoogleSpreadsheet} = require('google-spreadsheet');
 const mysql = require('mysql');
 const connection = mysql.createConnection({
     host: 'localhost',
-    user: 'root',
-    password: 'AQWzsx?!',
+    user: tok["USER_SQL"],
+    password: tok["MDP_SQL"],
 });
 
-connection.connect((err) => {
-    if (err) throw err;
-    console.log('Connecté!');
-});
+// connection.connect((err) => {
+//     if (err) throw err;
+//     console.log('Connecté!');
+// });
 
 // connection.end((err) => {
 //   if (err) throw err;
@@ -32,22 +32,36 @@ function getRandomInt(max) {
 }
 
 async function gogol() {
-    let doc = new GoogleSpreadsheet(tok["ID_GOGOL"]);
-    await doc.useApiKey("key");
+    let doc = new GoogleSpreadsheet(tok["ID_SHEET"]);
+    await doc.useApiKey(tok["API_GOOGLE"]);
     await doc.loadInfo();
     console.log(doc.title + " " + doc.sheetCount);
     for (let i = 0; i < doc.sheetCount; i++) {
         console.log(doc.sheetsByIndex[i].title + " " + i);
     }
     var grade = await doc.sheetsByIndex[0];
-    var solde = await doc.sheetsByIndex[0];
+    var solde = await doc.sheetsByIndex[2];
     // console.log(solde["_rawProperties"]);
     // console.log(grade["_rawProperties"]);
     // console.log(grade);
-    const rows = await solde.getRows({offset: 0});
-    for (var i = 1; i < solde.rowCount - 2; i++) {
-        console.log(rows[i].title)
+    await grade.loadCells('D10:D188');
+    await solde.loadCells('A9:A188');
+    await solde.loadCells('TP9:TP188');
+    for (let i = 10; i < 188; i++) {
+        if (grade.getCellByA1('D' + i).value) {
+            for (let j = 9; j < 188; j++) {
+                if (solde.getCellByA1('A' + j).value === grade.getCellByA1('D' + i).value) {
+                    console.log(grade.getCellByA1('D' + i).value + ", solde : " + solde.getCellByA1('TP' + j).value);
+                    break;
+                }
+            }
+
+        }
     }
+
+    // for (var i = 1; i < solde.rowCount - 2; i++) {
+    //     console.log(rows[i].title)
+    // }
 
     console.log("end");
 }
