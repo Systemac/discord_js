@@ -46,12 +46,13 @@ async function gogol() {
     // console.log(grade);
     await grade.loadCells('D10:D188');
     await solde.loadCells('A9:A188');
+    await solde.loadCells('B9:D188');
     await solde.loadCells('TP9:TP188');
     for (let i = 10; i < 188; i++) {
         if (grade.getCellByA1('D' + i).value) {
             for (let j = 9; j < 188; j++) {
                 if (solde.getCellByA1('A' + j).value === grade.getCellByA1('D' + i).value) {
-                    console.log(grade.getCellByA1('D' + i).value + ", solde : " + solde.getCellByA1('TP' + j).value);
+                    console.log(solde.getCellByA1('B' + j).value + " " + grade.getCellByA1('D' + i).value + ", solde : " + solde.getCellByA1('TP' + j).value);
                     break;
                 }
             }
@@ -201,7 +202,7 @@ bot.on('message', async function (message) {
     }
     if (message.content === "!solde") {
         let mess = await gogol();
-        message.delete();
+        await message.delete();
     }
 })
 
