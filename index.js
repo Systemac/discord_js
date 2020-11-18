@@ -33,7 +33,7 @@ function getRandomInt(max) {
 
 async function gogol() {
     let doc = new GoogleSpreadsheet(tok["ID_GOGOL"]);
-    await doc.useApiKey("AIzaSyDw2XUiEWpKx-H4o2aJpC0itIxh-obNPhY");
+    await doc.useApiKey("key");
     await doc.loadInfo();
     console.log(doc.title + " " + doc.sheetCount);
     for (let i = 0; i < doc.sheetCount; i++) {
