@@ -9,9 +9,47 @@ const axios = require('axios')
 const BASEURL = 'https://finder.deepspacecrew.com'
 let guild_id = 540489005951746048
 let roleID = 765320441757171753
+const {GoogleSpreadsheet} = require('google-spreadsheet');
+const mysql = require('mysql');
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'AQWzsx?!',
+});
+
+connection.connect((err) => {
+    if (err) throw err;
+    console.log('Connecté!');
+});
+
+// connection.end((err) => {
+//   if (err) throw err;
+//   console.log ('Déconnecté !');
+// });
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
+}
+
+async function gogol() {
+    let doc = new GoogleSpreadsheet(tok["ID_GOGOL"]);
+    await doc.useApiKey("AIzaSyDw2XUiEWpKx-H4o2aJpC0itIxh-obNPhY");
+    await doc.loadInfo();
+    console.log(doc.title + " " + doc.sheetCount);
+    for (let i = 0; i < doc.sheetCount; i++) {
+        console.log(doc.sheetsByIndex[i].title + " " + i);
+    }
+    var grade = await doc.sheetsByIndex[0];
+    var solde = await doc.sheetsByIndex[0];
+    // console.log(solde["_rawProperties"]);
+    // console.log(grade["_rawProperties"]);
+    // console.log(grade);
+    const rows = await solde.getRows({offset: 0});
+    for (var i = 1; i < solde.rowCount - 2; i++) {
+        console.log(rows[i].title)
+    }
+
+    console.log("end");
 }
 
 function change_avatar() {
@@ -146,6 +184,10 @@ bot.on('message', async function (message) {
     if (message.content === "!ping") {
         message.channel.send('pong');
         // change_avatar()
+    }
+    if (message.content === "!solde") {
+        let mess = await gogol();
+        message.delete();
     }
 })
 
