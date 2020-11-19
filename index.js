@@ -11,18 +11,19 @@ let guild_id = 540489005951746048
 let roleID = 765320441757171753
 const {GoogleSpreadsheet} = require('google-spreadsheet');
 const mysql = require('mysql');
-const connection = mysql.createConnection({
+const con = mysql.createConnection({
     host: 'localhost',
     user: tok["USER_SQL"],
     password: tok["MDP_SQL"],
+    database: "bot_fcu",
 });
 
-// connection.connect((err) => {
+// con.connect((err) => {
 //     if (err) throw err;
 //     console.log('Connecté!');
 // });
 
-// connection.end((err) => {
+// con.end((err) => {
 //   if (err) throw err;
 //   console.log ('Déconnecté !');
 // });
@@ -32,7 +33,7 @@ function getRandomInt(max) {
 }
 
 async function gogol() {
-    let doc = new GoogleSpreadsheet(tok["ID_SHEET"]);
+    let doc = new GoogleSpreadsheet(tok["ID_SHEET_MASTER"]);
     await doc.useApiKey(tok["API_GOOGLE"]);
     await doc.loadInfo();
     console.log(doc.title + " " + doc.sheetCount);
@@ -45,26 +46,148 @@ async function gogol() {
     // console.log(grade["_rawProperties"]);
     // console.log(grade);
     await grade.loadCells('D10:D188');
-    await solde.loadCells('A9:A188');
-    await solde.loadCells('B9:D188');
+    await grade.loadCells('I10:I188');
+    await grade.loadCells('K10:K188');
+    await solde.loadCells('A9:B188');
     await solde.loadCells('TP9:TP188');
     for (let i = 10; i < 188; i++) {
         if (grade.getCellByA1('D' + i).value) {
             for (let j = 9; j < 188; j++) {
                 if (solde.getCellByA1('A' + j).value === grade.getCellByA1('D' + i).value) {
+                    let pseudo = grade.getCellByA1('D' + i).value;
+                    let gra = solde.getCellByA1('B' + j).value;
+                    let handle = grade.getCellByA1('I' + i).value;
+                    let spe = grade.getCellByA1('K' + i).value;
+                    let solde_ = solde.getCellByA1('TP' + j).value;
                     console.log(solde.getCellByA1('B' + j).value + " " + grade.getCellByA1('D' + i).value + ", solde : " + solde.getCellByA1('TP' + j).value);
+                    con.connect((err) => {
+                        if (err) throw err;
+                        console.log('Connecté!');
+                    });
+                    let sql = `INSERT INTO personnel (pseudo, grade, handle, specialite, solde) VALUES (?,?,?,?,?)`;
+                    let todo = ['' + pseudo + '', '' + gra + '', '' + handle + '', '' + spe + '', solde_]
+                    con.query(sql, todo, function (err, result) {
+                        if (err) throw err;
+                        console.log(pseudo + " inséré dans la table.")
+                    });
+                    con.end((err) => {
+                        if (err) throw err;
+                        console.log('Déconnecté !');
+                    });
                     break;
                 }
             }
-
         }
     }
-
-    // for (var i = 1; i < solde.rowCount - 2; i++) {
-    //     console.log(rows[i].title)
-    // }
-
     console.log("end");
+}
+
+function idOf(i) {
+    return (i >= 26 ? idOf((i / 26 >> 0) - 1) : '') + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i % 26 >> 0];
+}
+
+function rename_ship(name) {
+    name = name.replace(/[\s-\/(+).]/g, '_');
+    name = name.replace(/_{2,}/g, '_');
+    name = name.replace('\'', '');
+    name = name.replace(/_$/g, '');
+    return name
+}
+
+async function create_table_ship() {
+    let fleet = new GoogleSpreadsheet(tok["ID_SHEET_FLEET"]);
+    await fleet.useApiKey(tok["API_GOOGLE"]);
+    await fleet.loadInfo();
+    var flotte = await fleet.sheetsByIndex[0];
+    await flotte.loadCells('B9:B' + flotte.rowCount);
+    con.connect((err) => {
+        if (err) throw err;
+        console.log('Connecté!');
+    });
+    for (let i = 9; i < flotte.rowCount; i++) {
+        if (flotte.getCellByA1('B' + i).value) {
+            var name = flotte.getCellByA1('B' + i).value
+            console.log(flotte.getCellByA1('B' + i).value)
+            name = rename_ship(name)
+            var sql = "ALTER TABLE ships ADD COLUMN " + name + " VARCHAR(50)";
+            con.query(sql, function (err, result) {
+                if (err) throw err;
+                console.log(name + " inséré dans la table.")
+            });
+        }
+    }
+    con.end((err) => {
+        if (err) throw err;
+        console.log('Déconnecté !');
+    });
+}
+
+
+async function dl_ships() {
+    let master = new GoogleSpreadsheet(tok["ID_SHEET_MASTER"]);
+    let fleet = new GoogleSpreadsheet(tok["ID_SHEET_FLEET"]);
+    await master.useApiKey(tok["API_GOOGLE"]);
+    await fleet.useApiKey(tok["API_GOOGLE"]);
+    await master.loadInfo();
+    await fleet.loadInfo();
+    var grade = await master.sheetsByIndex[0];
+    var flotte = await fleet.sheetsByIndex[0];
+    // console.log(grade.rowCount)
+    await grade.loadCells('D10:D' + grade.rowCount);
+    await flotte.loadCells('K3:DM3');
+    await flotte.loadCells('K1:DM1');
+    await flotte.loadCells('B9:B178');
+    for (let i = 10; i <= grade.rowCount; i++) {
+        if (grade.getCellByA1('D' + i).value) {
+            for (let j = 10; j < flotte.columnCount; j++) {
+                // console.log(flotte.getCellByA1(idOf(j) + '3').value)
+                // console.log(grade.getCellByA1('D' + i).value)
+                if (flotte.getCellByA1(idOf(j) + '3').value === grade.getCellByA1('D' + i).value) {
+                    if (flotte.getCellByA1(idOf(j) + '1').value > 0) {
+                        console.log(grade.getCellByA1('D' + i).value);
+                        let pseudo = grade.getCellByA1('D' + i).value;
+                        await flotte.loadCells(idOf(j) + '9:' + idOf(j) + flotte.columnCount);
+
+                        // console.log(flotte.getCellByA1(idOf(j) + '3').value + " " + grade.getCellByA1('D' + i).value);
+                        // con.connect((err) => {
+                        //     if (err) throw err;
+                        //     console.log('Connecté!');
+                        // });
+                        // let sql = `INSERT INTO personnel (pseudo, grade, handle, specialite, solde) VALUES (?,?,?,?,?)`;
+                        // let todo = [''+pseudo+'',''+gra+'',''+handle+'',''+spe+'',solde_]
+                        // con.query(sql, todo, function (err, result) {
+                        //     if (err) throw err;
+                        //     console.log(pseudo + " inséré dans la table.")
+                        // });
+                        // con.end((err) => {
+                        //     if (err) throw err;
+                        //     console.log ('Déconnecté !');
+                        // });
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    console.log("end");
+}
+
+function perso(ps) {
+    con.connect((err) => {
+        if (err) throw err;
+        console.log('Connecté!');
+    });
+    let sql = "SELECT grade, pseudo, solde FROM personnel WHERE pseudo = ?";
+    let todo = ['' + ps + '']
+    con.query(sql, todo, (function (err, result) {
+        if (err) throw err;
+        // console.log(result)
+        console.log(result[0].solde)
+    }))
+    con.end((err) => {
+        if (err) throw err;
+        console.log('Déconnecté !');
+    });
 }
 
 function change_avatar() {
@@ -153,6 +276,10 @@ function _getUrl(iditem) {
 
 bot.on('ready', () => {
     console.log(`Logged in as ${bot.user.tag}!`);
+    // gogol();
+    // perso('Systemack');
+    dl_ships();
+    // create_table_ship()
     // change_avatar();
     // getItemsFromServer();
 });
