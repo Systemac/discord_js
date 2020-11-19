@@ -36,7 +36,7 @@ async function gogol() {
     let doc = new GoogleSpreadsheet(tok["ID_SHEET_MASTER"]);
     await doc.useApiKey(tok["API_GOOGLE"]);
     await doc.loadInfo();
-    console.log(doc.title + " " + doc.sheetCount);
+    // console.log(doc.title + " " + doc.sheetCount);
     for (let i = 0; i < doc.sheetCount; i++) {
         console.log(doc.sheetsByIndex[i].title + " " + i);
     }
@@ -50,6 +50,10 @@ async function gogol() {
     await grade.loadCells('K10:K188');
     await solde.loadCells('A9:B188');
     await solde.loadCells('TP9:TP188');
+    con.connect((err) => {
+        if (err) throw err;
+        console.log('Connecté!');
+    });
     for (let i = 10; i < 188; i++) {
         if (grade.getCellByA1('D' + i).value) {
             for (let j = 9; j < 188; j++) {
@@ -59,26 +63,23 @@ async function gogol() {
                     let handle = grade.getCellByA1('I' + i).value;
                     let spe = grade.getCellByA1('K' + i).value;
                     let solde_ = solde.getCellByA1('TP' + j).value;
-                    console.log(solde.getCellByA1('B' + j).value + " " + grade.getCellByA1('D' + i).value + ", solde : " + solde.getCellByA1('TP' + j).value);
-                    con.connect((err) => {
-                        if (err) throw err;
-                        console.log('Connecté!');
-                    });
+                    // console.log(solde.getCellByA1('B' + j).value + " " + grade.getCellByA1('D' + i).value + ", solde : " + solde.getCellByA1('TP' + j).value);
                     let sql = `INSERT INTO personnel (pseudo, grade, handle, specialite, solde) VALUES (?,?,?,?,?)`;
                     let todo = ['' + pseudo + '', '' + gra + '', '' + handle + '', '' + spe + '', solde_]
-                    con.query(sql, todo, function (err, result) {
+                    await con.query(sql, todo, function (err, result) {
                         if (err) throw err;
                         console.log(pseudo + " inséré dans la table.")
-                    });
-                    con.end((err) => {
-                        if (err) throw err;
-                        console.log('Déconnecté !');
                     });
                     break;
                 }
             }
         }
     }
+    // TODO : table perso : ID, pseudo, grade, handle, specialite, solde | table ship : nom, marque, role, ID des pacs | table validation : date pour validation total de l'item, bool pour les petites parties
+    con.end((err) => {
+        if (err) throw err;
+        console.log('Déconnecté !');
+    });
     console.log("end");
 }
 
@@ -276,9 +277,9 @@ function _getUrl(iditem) {
 
 bot.on('ready', () => {
     console.log(`Logged in as ${bot.user.tag}!`);
-    // gogol();
+    gogol();
     // perso('Systemack');
-    dl_ships();
+    // dl_ships();
     // create_table_ship()
     // change_avatar();
     // getItemsFromServer();
