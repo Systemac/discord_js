@@ -86,7 +86,7 @@ async function gogol() {
 function idOf(i) {
     return (i >= 26 ? idOf((i / 26 >> 0) - 1) : '') + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i % 26 >> 0];
 }
-
+0
 function rename_ship(name) {
     name = name.replace(/[\s-\/(+).]/g, '_');
     name = name.replace(/_{2,}/g, '_');
@@ -122,7 +122,6 @@ async function create_table_ship() {
         console.log('Déconnecté !');
     });
 }
-
 
 async function dl_ships() {
     let master = new GoogleSpreadsheet(tok["ID_SHEET_MASTER"]);
