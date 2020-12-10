@@ -33,8 +33,8 @@ function getRandomInt(max) {
 }
 
 async function gogol() {
-    let doc = new GoogleSpreadsheet(tok["ID_SHEET_MASTER"]);
-    await doc.useApiKey(tok["API_GOOGLE"]);
+    let doc = new GoogleSpreadsheet(tok.ID_SHEET_MASTER);
+    await doc.useApiKey(tok.API_GOOGLE);
     await doc.loadInfo();
     // console.log(doc.title + " " + doc.sheetCount);
     for (let i = 0; i < doc.sheetCount; i++) {
@@ -96,8 +96,8 @@ function rename_ship(name) {
 }
 
 async function create_table_ship() {
-    let fleet = new GoogleSpreadsheet(tok["ID_SHEET_FLEET"]);
-    await fleet.useApiKey(tok["API_GOOGLE"]);
+    let fleet = new GoogleSpreadsheet(tok.ID_SHEET_FLEET);
+    await fleet.useApiKey(tok.API_GOOGLE);
     await fleet.loadInfo();
     var flotte = await fleet.sheetsByIndex[0];
     await flotte.loadCells('B9:B' + flotte.rowCount);
@@ -339,4 +339,4 @@ bot.on('guildMemberAdd', function (member) {
     }).catch(console.error)
 })
 
-bot.login(tok["TOKEN"]);
+bot.login(tok.TOKEN);
